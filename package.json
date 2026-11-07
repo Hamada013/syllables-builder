@@ -5,7 +5,7 @@
   "scripts": {
     "build": "node scripts/build-pwa.cjs",
     "build:icons": "node scripts/build-icons.cjs",
-    "test": "node tests/static.cjs && node tests/test-model.cjs && node tests/progress.cjs",
+    "test": "node tests/static.cjs && node tests/test-model.cjs && node tests/progress.cjs && node tests/session-homework.cjs",
     "test:browser": "node tests/standalone-browser.cjs",
     "test:activities": "node tests/activities-browser.cjs",
     "test:practice": "node tests/practice-browser.cjs",
