@@ -45,6 +45,8 @@ export function createProgress(storage, onError = () => {}) {
   workspace:()=>clone(active()?.taffaha?.workspace||null),
   flow:()=>clone(active()?.taffaha?.flow||null),
   saveFlow:flow=>!active()?false:write(latest=>{const child=latest.children.find(child=>child.id===owner);child.taffaha||={};child.taffaha.flow=clone(flow);}),
+  intervention:()=>clone(active()?.taffaha?.intervention||null),
+  saveIntervention:plan=>!active()?false:write(latest=>{const child=latest.children.find(child=>child.id===owner);child.taffaha||={};child.taffaha.intervention=clone(plan);}),
   saveWorkspace:workspace=>!active()?false:write(latest=>{const child=latest.children.find(child=>child.id===owner);child.taffaha||={};child.taffaha.workspace=clone(workspace);})
  };
 }

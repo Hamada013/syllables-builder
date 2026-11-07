@@ -16,12 +16,13 @@
     <link rel="stylesheet" href="assets/session-homework.css">
     <script defer src="assets/session-homework.js" data-app="taffaha"></script>
     <link rel="stylesheet" href="assets/app-navigation.css">
-    <script defer src="assets/app-navigation.js" data-app="taffaha"></script>
+    <script defer src="assets/app-navigation.js" data-app="taffaha"></script><link rel="stylesheet" href="assets/vendor/cairo.css"><link rel="stylesheet" href="assets/intervention.css"><script defer src="assets/intervention-goals.js"></script><script defer src="assets/intervention.js"></script>
 </head>
 <body>
  <header class="topbar"><a href="./" class="brand"><img src="assets/icons/logo.webp" width="52" height="52" alt=""><span>مقطع<small>نلعب بالمقاطع</small></span></a>
   <nav aria-label="أدوات التطبيق">
    <button class="icon" data-open-download aria-label="تنزيل التطبيق للعمل دون اتصال" title="تنزيل التطبيق للعمل دون اتصال" aria-haspopup="dialog" aria-controls="offline-dialog"></button>
+   <button type="button" class="icon" data-suite-control="plan" data-open-plan hidden aria-haspopup="dialog" aria-label="خطة التدخل" title="خطة التدخل"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H6a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-3M9 3h6v3H9zM8.5 11l1.5 1.5 3-3M8.5 17l1.5 1.5 3-3M15 11.5h1M15 17.5h1"/></svg></button><button type="button" class="icon" data-suite-control="therapist" data-therapist aria-pressed="false" aria-haspopup="dialog" aria-label="وضع المعالج" title="وضع المعالج"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z"/><circle cx="12" cy="10" r="2.5"/><path d="M8.5 16c.7-1.6 2-2.5 3.5-2.5s2.8.9 3.5 2.5"/></svg></button>
    <button id="open-report" class="icon" data-icon="report" aria-label="تقرير الطفل" title="تقرير الطفل"></button>
    <button id="go-home" class="icon" data-icon="home" aria-label="الصفحة الرئيسية" title="الصفحة الرئيسية" hidden></button>
    <button id="open-library" class="icon" data-icon="library" aria-label="اختيار كلمة حسب عدد المقاطع" title="اختيار كلمة" hidden></button>

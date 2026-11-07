@@ -8,6 +8,10 @@ The home screen has two large icon buttons: **ابدأ** opens practice and **ا
 
 In practice, tap the image for the original whole word, an individual circle for its syllable, or the surrounding syllable frame for the full right-to-left sequence. The title has its own row below the image. There are no separate playback buttons. The header music icon switches to rhythm practice: spoken syllables move into a frame beneath the image, and blank colored metronome circles occupy the larger frame. Tap that frame for one beat per syllable, or a single circle for one beat. The metronome sequence follows each recording's duration and the same saved pause as the syllable frame, so the two sequences have matching timing. If a recording is unavailable, the metronome uses a 350 ms syllable duration so rhythm practice still works. Both layouts retain image and syllable playback, fit the viewport, and remember the music setting locally. Recording and pause/stop controls are removed.
 
+## Therapist mode and intervention plan
+
+The shield button in the home header asks for the therapist password (**013**). Therapist mode lasts for the current tab and shows the **خطة التدخل** button (مقطع has no locked levels to open). There the therapist picks short-term goals from this app's goal bank, rates each 20/40/60/80%, and downloads a PDF progress report: goals in progress, then goals achieved at 80% on a separate page, then references. See [docs/intervention-goals.md](docs/intervention-goals.md).
+
 ## Tests
 
 The test header has a syllable-category button, one mode button, and the difficulty selector. The category popup contains only five circular number buttons (1–5), with no word search or individual picture selection; choosing a number starts that category. Practice retains its searchable word library. Downloads and contact details appear only on the home screen. Practice and test layouts fit the available viewport, including navigation.
