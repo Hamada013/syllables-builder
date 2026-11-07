@@ -1,0 +1,19 @@
+{
+  "name": "syllables-builder",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-pwa.cjs",
+    "build:icons": "node scripts/build-icons.cjs",
+    "test": "node tests/static.cjs && node tests/test-model.cjs && node tests/progress.cjs",
+    "test:browser": "node tests/standalone-browser.cjs",
+    "test:activities": "node tests/activities-browser.cjs",
+    "test:practice": "node tests/practice-browser.cjs",
+    "build:data": "node scripts/build-data.cjs && node scripts/build-pwa.cjs",
+    "check": "node scripts/build-pwa.cjs --check"
+  },
+  "devDependencies": {
+    "sharp": "0.34.5",
+    "playwright": "1.56.1"
+  }
+}
