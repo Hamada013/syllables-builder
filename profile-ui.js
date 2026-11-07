@@ -2,7 +2,7 @@ import {progress as P,MODES,STORAGE} from './progress.js';
 const $=id=>document.getElementById(id);
 export function initProfile() {
  const dialog=$('taffaha-child-dialog'),input=$('taffaha-child-name');let authorized=false,opening=false;
- const update=()=>{};
+ const update=()=>{const name=P.active()?.name||'دخول';$('open-profile').setAttribute('aria-label','ملف الطفل: '+name);$('open-profile').title='ملف الطفل: '+name;$('profile-name').textContent=name;};
  async function open(name) {
   if(opening||dialog.open)return;opening=true;authorized=false;window.dispatchEvent(new Event('taffaha-profile-open'));
   try{
@@ -18,10 +18,11 @@ export function initProfile() {
  dialog.querySelector('form').onsubmit=e=>{e.preventDefault();enter(input.value);};
  dialog.addEventListener('close',()=>{authorized=false;});
  dialog.addEventListener('cancel',event=>{if(!P.active())event.preventDefault();});
- window.TaffahaProfile={open(){}};
+ $('open-profile').onclick=()=>open();update();window.TaffahaProfile={open};
  window.addEventListener('storage',e=>{if(e.key!==STORAGE||!e.newValue)return;try{if(JSON.parse(e.newValue).active!==P.active()?.id){window.dispatchEvent(new Event('taffaha-profile-beforechange'));location.reload();}}catch{}});
  window.addEventListener('taffaha-storage-error',()=>{$('profile-error').hidden=false;});
- window.SuiteWelcome?.connect();
+ const welcoming=window.SuiteWelcome?.connect(P,name=>{authorized=true;enter(name);});
+ if(!welcoming&&!P.active()&&!new URLSearchParams(location.search).has('reportChild')&&!new URLSearchParams(location.search).has('createProfile'))open();
 }
 export const periods={all:'منذ إنشاء الحساب',halfyear:'آخر 6 أشهر',quarter:'آخر 3 أشهر',month:'آخر 30 يوماً',week:'آخر 7 أيام',day:'اليوم'};
 export function summarize(child,words,period='all',now=new Date()) {

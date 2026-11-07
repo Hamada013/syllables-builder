@@ -157,7 +157,7 @@ function renderTest(){
  }
 }
 function updateToolbar(){
- $('open-report').hidden=screen!=='home';document.querySelector('.contact-footer').hidden=screen!=='home';
+ $('open-profile').hidden=screen!=='home';$('open-report').hidden=screen!=='home';document.querySelector('.contact-footer').hidden=screen!=='home';
  $('go-home').hidden=screen==='home';$('open-library').hidden=screen==='home';
  $('toggle-rhythm').hidden=screen!=='practice';$('toggle-rhythm').setAttribute('aria-pressed',String(practiceRhythm));
  for(const id of ['open-mode','open-level'])$(id).hidden=screen!=='test';

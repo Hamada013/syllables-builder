@@ -1,4 +1,4 @@
-// Device-local progress for this app's single learner.
+// Device-local child accounts for this app. Taffaha owns only child.taffaha.
 export const STORAGE = 'syllables-builder-v1';
 export const MODES = {count:'الصورة وعدد المقاطع', picture:'المقاطع والصورة'};
 const clone = value => value == null ? value : JSON.parse(JSON.stringify(value));
@@ -52,6 +52,4 @@ export function createProgress(storage, onError = () => {}) {
 }
 let storage;try{storage=globalThis.localStorage;}catch{}
 export const progress=createProgress(storage||{getItem(){},setItem(){throw Error('unavailable');}},()=>globalThis.dispatchEvent?.(new Event('taffaha-storage-error')));
-// One learner per device: there are no child accounts to create or switch.
-if(globalThis.document&&!progress.active())progress.signIn('الطفل');
 if(globalThis.document)globalThis.TaffahaProgress=progress;

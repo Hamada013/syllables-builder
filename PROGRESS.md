@@ -1,6 +1,6 @@
 # Child progress and reports
 
-There are no child accounts. The app keeps one learner per device, created automatically on first launch, so there is nothing to sign in to, switch or delete. Progress is stored in this browser's local storage under `syllables-builder-v1`. There is no cloud account or cross-device sync.
+Each app has its own child accounts, separate from every other app: the first launch asks for the child's name, and the accounts button beside the therapist button adds or switches children behind a short parent check. Progress, reports and the intervention plan belong to the active child. Progress is stored in this browser's local storage under `syllables-builder-v1`. There is no cloud account or cross-device sync.
 
 The learner's last word, test kind, level, rhythm and unfinished question are restored after reopening. Failed storage writes show an error and retain the current in-memory work.
 
