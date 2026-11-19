@@ -62,6 +62,8 @@ export function initReports(words) {
   }
   body.append(make('p','الاكتساب حسب آخر إجابة مكتملة لكل كلمة واختبار: إجابة صحيحة من المحاولة الأولى. المحاولات بعد المساعدة تُحفظ في الدقة ولا تُحسب اكتسابًا.','muted'));
   if(!model.entries.length)body.append(make('p','لا توجد نتائج محفوظة بعد.','taffaha-report-empty'));
+  // The intervention plan's goals belong to the active child's report.
+  if(window.InterventionPlan&&child.id===P.active()?.id)body.append(window.InterventionPlan.reportSection());
   dialog.querySelectorAll('[data-period]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.period===period)));
   window.AppNavigation?.reportLinks($('taffaha-report-apps'),child);
  }

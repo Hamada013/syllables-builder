@@ -13,8 +13,9 @@ const G = sandbox.module.exports;
   for (const goal of G.GOALS) {
       assert.ok(goal.title && goal.text && goal.short.length >= 2, goal.id);
       assert.ok(goal.sources.length && goal.sources.every(id => G.SOURCES[id]?.url.startsWith('https://')), `${goal.id} cites sources`);
-      for (const item of goal.short) { assert.ok(item.text.includes('80%') && item.where, item.id); assert.equal(G.short(item.id).long.id, goal.id); }
+      for (const item of goal.short) { assert.ok(item.text && item.text.length <= 70 && item.where, `${item.id} is short and says where it is practised`); assert.equal(G.short(item.id).long.id, goal.id); }
   }
+  assert.ok(G.PLANS.length >= 3 && G.PLANS.every(ready => ready.title && ready.goals.length && ready.goals.every(id => G.short(id))), 'Ready-made plans use real goals');
   const plan = { childName: 'ليان', therapist: '', start: '2026-11-07', goals: [{ id: 'S1.1', rating: 80, history: [{ date: '2026-11-07T10:00:00Z', rating: 80 }], achieved: '2026-11-07T10:00:00Z' }] };
 
   const { createProgress } = await import('../progress.js');
