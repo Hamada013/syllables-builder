@@ -22,7 +22,7 @@ export function createProgress(storage, onError = () => {}) {
   name=normalize(name);if(!name)return null;
   write(latest=>{
    let child=latest.children.find(child=>normalize(child.name).toLocaleLowerCase()===name.toLocaleLowerCase());
-   if(!child){child={id:globalThis.crypto?.randomUUID?.()||`child-${Date.now()}-${Math.random().toString(36).slice(2)}`,name,role:name.toLocaleLowerCase()==='hamada'?'admin':'child',created:new Date().toISOString()};latest.children.push(child);}
+   if(!child){child={id:globalThis.crypto?.randomUUID?.()||`child-${Date.now()}-${Math.random().toString(36).slice(2)}`,name,role:'child',created:new Date().toISOString()};latest.children.push(child);}
    owner=child.id;child.taffaha||={attempts:[],workspace:null};child.apps = { ...child.apps, voc: true, senb: true, taffaha: true };
   },true);return active();
  }

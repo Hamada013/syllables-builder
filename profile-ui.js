@@ -6,19 +6,21 @@ export function initProfile() {
  async function open(name) {
   if(opening||dialog.open)return;opening=true;authorized=false;window.dispatchEvent(new Event('taffaha-profile-open'));
   try{
-   if((P.active()||P.children().some(child=>child.role!=='admin'))&&!await window.ChildAccountGate.request())return;
-   authorized=true;dialog.querySelector('[data-close]').hidden=!P.active();input.value=typeof name==='string'?name:P.active()?.name||'';
-   const admin=P.active()?.role==='admin',savedChildren=$('taffaha-saved-children');
-   $('taffaha-child-title').textContent=admin?'Hamada':'ملف الطفل';
+   if((P.active()||P.children().length)&&!await window.ChildAccountGate.request())return;
+   authorized=true;dialog.querySelector('[data-close]').hidden=!P.active();input.value=typeof name==='string'?name:'';
+   const savedChildren=$('taffaha-saved-children');
    window.SuiteAccounts.render(savedChildren,P.children(),child=>{const button=document.createElement('button');button.type='button';button.textContent=child.name;button.onclick=()=>enter(child.name);return window.SuiteAccounts.row(child,button);});
-   dialog.showModal();input.focus();input.select();
+   dialog.showModal();input.focus();
   }finally{opening=false;}
  }
  function enter(name){if(!authorized||!String(name).trim())return;window.dispatchEvent(new Event('taffaha-profile-beforechange'));if(!P.signIn(name))return;authorized=false;dialog.close();update();window.dispatchEvent(new Event('taffaha-profile-change'));}
  dialog.querySelector('form').onsubmit=e=>{e.preventDefault();enter(input.value);};
  dialog.addEventListener('close',()=>{authorized=false;});
  dialog.addEventListener('cancel',event=>{if(!P.active())event.preventDefault();});
- $('open-profile').onclick=()=>open();update();window.TaffahaProfile={open};
+ $('open-profile').onclick=()=>open();update();
+ const showHead=()=>{const chip=P.active()&&P.active().role!=='admin'&&window.SuiteAccounts?.avatarFor(P.active());const button=$('open-profile');if(!chip)return;const holder=document.createElement('span');holder.className='suite-account-chip';holder.append(chip);button.classList.add('has-account-chip');button.removeAttribute('data-icon');button.replaceChildren(holder);};
+ if(window.SuiteAccounts)showHead();else window.addEventListener('DOMContentLoaded',showHead,{once:true});
+ window.addEventListener('suite-avatar-change',showHead);window.addEventListener('taffaha-profile-change',showHead);window.TaffahaProfile={open};
  window.addEventListener('storage',e=>{if(e.key!==STORAGE||!e.newValue)return;try{if(JSON.parse(e.newValue).active!==P.active()?.id){window.dispatchEvent(new Event('taffaha-profile-beforechange'));location.reload();}}catch{}});
  window.addEventListener('taffaha-storage-error',()=>{$('profile-error').hidden=false;});
  const welcoming=window.SuiteWelcome?.connect(P,name=>{authorized=true;enter(name);});
