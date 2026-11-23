@@ -13,6 +13,9 @@
     <link rel="stylesheet" href="assets/flow-ui.css">
     <script defer src="assets/flow-ui.js"></script>
     <script defer src="assets/accounts.js"></script>
+    <link rel="stylesheet" href="assets/child-level.css">
+    <script defer src="assets/child-level.js"></script>
+    <script defer src="assets/prompts.js" data-base="assets/sounds/prompts/"></script>
     <link rel="stylesheet" href="assets/session-homework.css">
     <script defer src="assets/session-homework.js" data-app="taffaha"></script>
     <link rel="stylesheet" href="assets/app-navigation.css">
@@ -28,6 +31,7 @@
    <button id="go-home" class="icon" data-icon="home" aria-label="الصفحة الرئيسية" title="الصفحة الرئيسية" hidden></button>
    <button id="open-library" class="icon" data-icon="library" aria-label="اختيار كلمة حسب عدد المقاطع" title="اختيار كلمة" hidden></button>
    <button id="toggle-rhythm" class="icon" data-icon="music" aria-label="تدريب الإيقاع" title="تدريب الإيقاع" aria-pressed="false" hidden></button>
+   <button id="start-route" class="icon" data-icon="route" aria-label="المسار: تدريب ثم الاختباران" title="المسار: تدريب ثم الاختباران" hidden></button>
    <button id="open-mode" class="icon test-tool" data-icon="count" aria-label="نوع الاختبار" title="نوع الاختبار" aria-haspopup="dialog" hidden></button>
    <button id="open-level" class="icon test-tool" data-icon="level" aria-label="المستوى: سهل" title="المستوى: سهل" hidden></button>
   </nav>
@@ -81,12 +85,13 @@
    <button data-level="hard" aria-pressed="false"><span class="level-mark" data-icon="hard"></span><strong>صعب</strong><small></small></button>
   </div>
  </dialog>
+ <dialog id="route-repeat" class="route-repeat" aria-label="إعادة الكلمات"><figure><img id="route-repeat-image" alt=""><figcaption id="route-repeat-label"></figcaption></figure></dialog>
  <dialog id="answer-feedback" class="answer-feedback" aria-labelledby="feedback-text" tabindex="-1"><div class="feedback-content"><div id="feedback-symbol" class="feedback-symbol" aria-hidden="true"></div><p id="feedback-text" role="status" aria-live="assertive"></p></div></dialog>
  <dialog id="library-dialog" aria-labelledby="library-title"><div class="dialog-title"><h2 id="library-title">اختر عدد المقاطع</h2><div class="learned-controls" role="group" aria-label="الكلمات المكتسبة">
  <button class="icon" data-learned-mode="count" data-icon="picture" aria-label="المكتسب: الصورة وعدد المقاطع" title="المكتسب: الصورة وعدد المقاطع" aria-pressed="false"></button>
  <button class="icon" data-learned-mode="picture" data-icon="count" aria-label="المكتسب: المقاطع والصورة" title="المكتسب: المقاطع والصورة" aria-pressed="false"></button></div><button data-close class="icon" data-icon="close" aria-label="إغلاق"></button></div><label for="search">ابحث عن كلمة</label><input id="search" type="search" placeholder="تفاحة، موزة…"><div id="category-filters" class="filters" aria-label="عدد المقاطع"></div><div id="word-library" class="word-library"></div></dialog>
  <dialog id="taffaha-child-dialog" class="suite-account-dialog" aria-labelledby="taffaha-child-title"><div class="account-head"><h2 id="taffaha-child-title">حسابات الأطفال</h2><div class="account-head-tools"><button type="button" data-close aria-label="إغلاق" title="إغلاق"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div></div><form class="account-add"><label for="taffaha-child-name">فتح أو إضافة طفل</label><div class="account-add-row"><input id="taffaha-child-name" name="name" autocomplete="off" maxlength="60" required dir="auto" placeholder="اسم الطفل"><button type="submit">دخول / إضافة</button></div></form><div id="taffaha-saved-children"></div></dialog>
- <dialog id="taffaha-report" aria-labelledby="taffaha-report-title"><header class="dialog-title"><h2 id="taffaha-report-title">تقرير التقدم</h2><button id="taffaha-report-download" class="icon" data-icon="download" aria-label="تنزيل تقرير PDF" title="تنزيل تقرير PDF"></button><button class="icon" data-icon="close" data-close aria-label="إغلاق"></button></header><nav id="taffaha-report-apps"></nav><nav id="taffaha-report-periods" aria-label="فترة التقرير"></nav><div id="taffaha-report-body"></div><p id="taffaha-report-error" role="alert"></p></dialog>
+ <dialog id="taffaha-report" aria-labelledby="taffaha-report-title"><header class="dialog-title"><h2 id="taffaha-report-title">تقرير التقدم</h2><button id="taffaha-report-download" class="icon" data-icon="report" aria-label="طباعة التقارير" title="طباعة التقارير"></button><button class="icon" data-icon="close" data-close aria-label="إغلاق"></button></header><nav id="taffaha-report-apps"></nav><nav id="taffaha-report-periods" aria-label="فترة التقرير"></nav><div id="taffaha-report-body"></div><p id="taffaha-report-error" role="alert"></p></dialog>
  <p id="profile-error" role="alert" hidden>تعذّر حفظ التقدم على الجهاز. تحقق من مساحة التخزين وإعدادات المتصفح.</p>
  <noscript><p>يرجى تفعيل JavaScript للاستماع للمقاطع.</p></noscript>
 <dialog id="offline-dialog" class="offline-dialog" data-offline-dialog aria-labelledby="offline-title"><h2 id="offline-title">تنزيل</h2><section data-offline-card data-state="idle"><svg data-offline-complete hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m7.5 12 3 3 6-6"/></svg><button type="button" data-offline-download>تنزيل</button><p data-offline-status dir="ltr" role="status" aria-live="polite">0%</p><progress max="100" value="0" aria-label="تقدم التنزيل"></progress><p data-offline-error role="alert" hidden></p></section></dialog>

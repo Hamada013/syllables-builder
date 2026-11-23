@@ -12,6 +12,14 @@ In practice, tap the image for the original whole word, an individual circle for
 
 The therapist switch in the home header works like the articulation app's: a lock when closed, an open lock when open. Tapping the lock asks for the password (**013**); one tap locks it again. It stays open on this device until locked. Everything therapist-only is shown only while it is open: the **خطة التدخل** button, the plan with its long- and short-term goals, ready-made plans (بداية / متوسط / متقدم) that add their goals in one tap, each goal's 20/40/60/80% rating, each long-term goal's and the whole plan's achievement percentage, the goals section in the child's progress report, and the goals PDF (goals in progress, then goals achieved at 80% on a separate page, then references). Progress stays saved in this browser. See [docs/intervention-goals.md](docs/intervention-goals.md).
 
+## Automatic route, child levels and goal estimates
+
+The route icon in the practice settings runs five words automatically: practice (word, then its syllables, then 1 s) → picture test → automatic repetition of missed words → count test → repetition of missed words. Short spoken praise and retry prompts (`assets/sounds/prompts/`, shared with كلمة and جملة) follow answers. Any manual tap stops the route.
+
+Each child account has a level (سهل / متوسط / متقدم) set when the child is added and changeable with the name in the accounts window; it sets the test difficulty (سهل → easy, متوسط → moderate, متقدم → hard). Level controls are the shared `assets/child-level.js` / `.css`.
+
+Every finished test moves each goal's estimate halfway toward that score (`assets/intervention-goals.js` → `estimate`). Three sessions in a row at 80%+ achieve a goal, which then shows green; the plan's «التقدم» tab lists goals being worked on, achieved and suggested next. «طباعة التقارير» asks which reports to download, each as a separate PDF.
+
 ## Tests
 
 The test header has a syllable-category button, one mode button, and the difficulty selector. The category popup contains only five circular number buttons (1–5), with no word search or individual picture selection; choosing a number starts that category. Practice retains its searchable word library. Downloads and contact details appear only on the home screen. Practice and test layouts fit the available viewport, including navigation.

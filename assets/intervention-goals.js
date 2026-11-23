@@ -88,7 +88,48 @@
     const LEVELS = [20, 40, 60, 80];
     const ACHIEVED = 80;
     const byId = new Map(GOALS.flatMap(goal => goal.short.map(item => [item.id, { ...item, long: goal }])));
-    const api = { APP, SOURCES, GOALS, PLANS, LEVELS, ACHIEVED, short: id => byId.get(id) || null };
+    // ---- Estimates from the child's saved answers ----
+    // Answers are saved one by one (child.taffaha.attempts); a session is the set of answers with the
+    // same session id. Only completed answers count; a correct answer counts when it was the first try.
+    // Goals without a test in the app (segmenting, saying the word) are rated by the therapist only.
+    const DAY = 864e5;
+    const MEASURES = {
+        'S2.1': a => a.mode === 'count' && a.level === 'easy', 'S2.2': a => a.mode === 'count' && a.level === 'moderate', 'S2.3': a => a.mode === 'count' && a.level === 'hard',
+        'S3.1': a => a.mode === 'picture' && a.level === 'easy', 'S3.2': a => a.mode === 'picture' && a.level === 'moderate', 'S3.3': a => a.mode === 'picture' && a.level === 'hard',
+        'S5.3': (a, gap) => gap >= 14
+    };
+    /** Each session moves the estimate halfway toward that session's score, so it builds up or falls back
+     *  over time. A goal is achieved after 3 sessions in a row at 80% or more. */
+    function estimate(child) {
+        const attempts = (child?.taffaha?.attempts || []).filter(a => a.completed || a.correct === false).map(a => ({ ...a, time: Date.parse(a.date) || 0 })).sort((a, b) => a.time - b.time);
+        const sessions = new Map();
+        for (const attempt of attempts) { const id = attempt.sessionId || new Date(attempt.time).toISOString().slice(0, 10); if (!sessions.has(id)) sessions.set(id, []); sessions.get(id).push(attempt); }
+        const lastSeen = new Map(), out = {};
+        for (const list of [...sessions.values()].sort((a, b) => a[0].time - b[0].time)) {
+            // One result per word and test in a session: its first answer.
+            const firsts = new Map(); for (const attempt of list) { const key = attempt.wordId + '|' + attempt.mode; if (!firsts.has(key)) firsts.set(key, attempt); }
+            const time = list[0].time;
+            for (const [id, counts] of Object.entries(MEASURES)) {
+                let right = 0, total = 0;
+                for (const attempt of firsts.values()) { const gap = lastSeen.has(attempt.wordId + '|' + attempt.mode) ? (time - lastSeen.get(attempt.wordId + '|' + attempt.mode)) / DAY : -1; if (counts(attempt, gap)) { total++; if (attempt.correct && attempt.firstTry) right++; } }
+                if (!total) continue;
+                const score = Math.round(right / total * 100), goal = out[id] ||= { percent: null, sessions: 0, streak: 0, achieved: null, history: [] };
+                goal.percent = goal.percent == null ? score : Math.round((goal.percent + score) / 2);
+                goal.sessions++; goal.streak = score >= ACHIEVED ? goal.streak + 1 : 0;
+                goal.last = new Date(time).toISOString(); goal.history.push({ date: goal.last, score, percent: goal.percent });
+                if (goal.streak >= 3 && !goal.achieved) goal.achieved = goal.last;
+            }
+            for (const attempt of firsts.values()) lastSeen.set(attempt.wordId + '|' + attempt.mode, time);
+        }
+        return out;
+    }
+    /** Suggested next goals: after an achieved goal, the next goal of the same long-term goal not in the plan yet. */
+    function suggest(planIds, achievedIds, limit = 4) {
+        const inPlan = new Set(planIds), done = new Set(achievedIds), out = [];
+        for (const goal of GOALS) { const ids = goal.short.map(item => item.id); if (!ids.some(id => done.has(id))) continue; const next = ids.find(id => !inPlan.has(id)); if (next) out.push(next); }
+        return out.slice(0, limit);
+    }
+    const api = { MEASURES, estimate, suggest, APP, SOURCES, GOALS, PLANS, LEVELS, ACHIEVED, short: id => byId.get(id) || null };
     if (typeof module !== 'undefined') module.exports = api;
     root.InterventionGoals = api;
 })(globalThis);

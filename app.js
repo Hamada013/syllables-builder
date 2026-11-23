@@ -4,7 +4,7 @@ import {loadWords,loadImage,assetURL} from './assetsManager.js';
 import {AudioEngine} from './audio.js';
 import {readPreferences,savePreferences} from './storage.js';
 import {initOffline} from './offline.js';
-import {progress as P} from './progress.js';
+import {progress as P,TEST_LEVEL} from './progress.js';
 import {initProfile,initReports} from './profile-ui.js';
 import {LEVELS,pictureChoices,countChoices} from './test-model.js';
 installDialogFallback();applyIcons();
@@ -90,13 +90,15 @@ $('answer-feedback').addEventListener('close',()=>{if(feedbackOpen())return;clea
 function showFeedback(correct,choice){
  window.SessionHomework?.record({activity:testKind==='count'?'الصورة وعدد المقاطع':'المقاطع والصورة',key:current().id,label:current().label,syllables:current().syllables,count:current().syllableCount,kind:'assessment',domain:testKind,correct:Number(correct),total:1});
  P.record({id:crypto.randomUUID(),word:current(),mode:testKind,level,correct,firstTry:attemptsThisQuestion===0,completed:correct,sessionId});
+ if(!correct&&route&&attemptsThisQuestion===0)route.failed.add(current().id);
+ void (correct?window.VocPrompts?.praise():window.VocPrompts?.retry());
  attemptsThisQuestion++;preferences.questionCompleted=correct;persist();
  stopPlayback();answered=correct;choice.classList.add(correct?'is-correct':'is-wrong');
  $('answer-feedback').dataset.result=correct?'correct':'wrong';$('feedback-symbol').innerHTML=icon(correct?'check':'close');$('feedback-text').textContent=correct?'أحسنت!':'حاول مرة أخرى';
  const serial=questionSerial;document.body.classList.add('feedback-visible');$('answer-feedback').showModal();locks();
  feedbackTimer=setTimeout(()=>{
   feedbackTimer=null;$('answer-feedback').close();
-  if(serial===questionSerial&&screen==='test'&&correct)navigate(1);
+  if(serial===questionSerial&&screen==='test'&&correct){if(route)void routeNext();else navigate(1);}
  },correct?1100:900);
 }
 async function selectPicture(word,button){
@@ -159,7 +161,7 @@ function renderTest(){
 function updateToolbar(){
  $('open-profile').hidden=screen!=='home';$('open-report').hidden=screen!=='home';document.querySelector('.contact-footer').hidden=screen!=='home';
  $('go-home').hidden=screen==='home';$('open-library').hidden=screen==='home';
- $('toggle-rhythm').hidden=screen!=='practice';$('toggle-rhythm').setAttribute('aria-pressed',String(practiceRhythm));
+ $('toggle-rhythm').hidden=screen!=='practice';$('start-route').hidden=screen!=='practice';$('toggle-rhythm').setAttribute('aria-pressed',String(practiceRhythm));
  for(const id of ['open-mode','open-level'])$(id).hidden=screen!=='test';
  const modeLabel=testKind==='count'?'الصورة وعدد المقاطع':'المقاطع والصورة';
  $('open-mode').innerHTML=icon(testKind==='count'?'picture':'count');$('open-mode').setAttribute('aria-label','نوع الاختبار: '+modeLabel);$('open-mode').title='نوع الاختبار: '+modeLabel;
@@ -195,6 +197,50 @@ document.querySelector('.brand').onclick=e=>{e.preventDefault();goTo('home');};
 function navigate(step){
  const siblings=group(),position=siblings.findIndex(w=>w.id===current().id),next=siblings[(position+step+siblings.length)%siblings.length];index=words.findIndex(w=>w.id===next.id);renderCurrent();
 }
+// ---- Route: practice → «المقاطع والصورة» → repeat missed → «الصورة وعدد المقاطع» → repeat missed ----
+// Five words from the current syllable group, starting with the current word. It runs by itself;
+// any manual tap (next, home, library, mode, level…) stops it.
+const ROUTE_SIZE=5;let route=null;
+function cancelRoute(){if(!route)return;route=null;document.body.classList.remove('route-active');if($('route-repeat').open)$('route-repeat').close();}
+function routeIndex(){index=words.findIndex(w=>w.id===route.ids[route.pos]);}
+async function startRoute(){
+ const siblings=group(),start=siblings.findIndex(w=>w.id===current().id);
+ route={ids:Array.from({length:Math.min(ROUTE_SIZE,siblings.length)},(_,i)=>siblings[(start+i)%siblings.length].id),stage:'practice',pos:0,failed:new Set()};
+ document.body.classList.add('route-active');const own=route;
+ if(screen!=='practice')goTo('practice');
+ for(;route===own&&route.pos<route.ids.length;route.pos++){
+  routeIndex();renderCurrent();const word=current();
+  await runPlayback(async signal=>{$('original').classList.add('is-playing');await engine.play(assetURL(word.audio),{signal});await gap(500,signal);await playSyllables($('syllables'),$('sequence'),word,signal);await gap(1000,signal);});
+ }
+ if(route===own)startRouteTest('picture');
+}
+function startRouteTest(kind){
+ testKind=kind;route.stage=kind;route.pos=0;route.failed=new Set();sessionId=crypto.randomUUID();
+ if(P.active())level=TEST_LEVEL[P.level()];
+ routeIndex();if(screen!=='test')goTo('test');else renderCurrent();
+}
+async function routeNext(){
+ if(!route)return;route.pos++;
+ if(route.pos<route.ids.length){routeIndex();renderCurrent();return;}
+ const own=route,missed=[...route.failed];
+ await repeatWords(missed);if(route!==own)return;
+ if(route.stage==='picture'){startRouteTest('count');return;}
+ cancelRoute();say('خلصنا! برافو عليك');void window.VocPrompts?.say('done-1');
+}
+// Each missed word once, big, with its word, then 1 second. No buttons; Escape stops the route.
+async function repeatWords(ids){
+ if(!ids.length)return;const dialog=$('route-repeat'),own=route;dialog.showModal();
+ for(const id of ids){
+  if(route!==own)break;const word=words.find(w=>w.id===id);
+  loadImage($('route-repeat-image'),word.image,word.label);$('route-repeat-label').textContent=word.label;
+  const figure=dialog.querySelector('figure');figure.classList.remove('route-in');void figure.offsetWidth;figure.classList.add('route-in');
+  await runPlayback(async signal=>{await engine.play(assetURL(word.audio),{signal});await gap(1000,signal);});
+ }
+ if(dialog.open)dialog.close();
+}
+$('route-repeat').addEventListener('cancel',()=>{stopPlayback();cancelRoute();});
+$('start-route').onclick=()=>{cancelRoute();void startRoute();};
+for(const id of ['previous','next','random','go-home','open-library','open-mode','open-level','start-practice','start-test','toggle-rhythm'])$(id).addEventListener('click',cancelRoute,true);
 $('previous').onclick=()=>navigate(-1);$('next').onclick=()=>navigate(1);$('random').onclick=()=>navigate(1+Math.floor(Math.random()*(group().length-1)));
 $('original').onclick=()=>runPlayback(async signal=>{$('original').classList.add('is-playing');$('original').setAttribute('aria-busy','true');await engine.play(assetURL(current().audio),{signal});});
 $('sequence').onclick=()=>runPlayback(signal=>playSyllables($('syllables'),$('sequence'),current(),signal));
@@ -218,7 +264,7 @@ $('open-level').onclick=()=>{
 for(const b of document.querySelectorAll('#level-dialog button[data-level]'))b.onclick=()=>{level=b.dataset.level;$('level-dialog').close();renderCurrent();};
 for(const button of document.querySelectorAll('[data-close]'))button.onclick=()=>button.closest('dialog').close();
 for(const dialog of document.querySelectorAll('dialog:not(#answer-feedback)'))dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
-function background(){stopPlayback();cancelFeedback();}
+function background(){stopPlayback();cancelFeedback();cancelRoute();}
 document.addEventListener('visibilitychange',()=>{if(document.hidden)background();});window.addEventListener('pagehide',background);
 function renderLibrary(){
  const q=$('search').value.trim();$('word-library').replaceChildren();
@@ -238,12 +284,13 @@ $('search').oninput=renderLibrary;$('open-library').onclick=()=>{
  }else{libraryCount=current().syllableCount;$('search').value='';renderLibrary();$('library-dialog').showModal();}
 };
 window.TaffahaApp={go:goTo,test:kind=>{testKind=kind;goTo('test');}};
-window.addEventListener('taffaha-profile-open',background);
+window.addEventListener('taffaha-profile-open',()=>{background();cancelRoute();});
+window.addEventListener('taffaha-level-change',()=>{level=TEST_LEVEL[P.level()];if(screen==='test')renderCurrent();else persist();});
 window.addEventListener('suite-navigation-open',background);
 window.addEventListener('taffaha-profile-beforechange',()=>{background();});
 window.addEventListener('taffaha-profile-change',()=>{
  const saved=P.workspace()||{};for(const key of Object.keys(preferences))delete preferences[key];Object.assign(preferences,saved);
- level=LEVELS.includes(saved.testLevel)?saved.testLevel:'easy';testKind=saved.testKind==='count'?'count':'picture';practiceRhythm=saved.practiceRhythm===true;
+ level=P.active()?TEST_LEVEL[P.level()]:LEVELS.includes(saved.testLevel)?saved.testLevel:'easy';testKind=saved.testKind==='count'?'count':'picture';practiceRhythm=saved.practiceRhythm===true;
  index=Math.max(0,words.findIndex(word=>word.id===(saved.lastWord||'voc-6-1')));sessionId=saved.sessionId||crypto.randomUUID();resumeAttempt=saved;attemptsThisQuestion=Number(saved.testTries)||0;learnedFilter=null;
  if(saved.questionCompleted&&words.length){const siblings=group();index=words.indexOf(siblings[(siblings.indexOf(current())+1)%siblings.length]);resumeAttempt=null;attemptsThisQuestion=0;preferences.questionCompleted=false;}
  goTo('home');window.AppNavigation?.register();
@@ -251,6 +298,7 @@ window.addEventListener('taffaha-profile-change',()=>{
 async function init(){
  initProfile();
  try{
+  if(P.active())level=TEST_LEVEL[P.level()];
   words=await loadWords();index=words.findIndex(w=>w.id===(preferences.lastWord||'voc-6-1'));if(index<0)index=0;
   if(preferences.questionCompleted){const siblings=group();index=words.indexOf(siblings[(siblings.indexOf(current())+1)%siblings.length]);resumeAttempt=null;}
   for(let n=1;n<=5;n++){const b=document.createElement('button');b.textContent=String(n);b.dataset.count=n;b.setAttribute('aria-label',countLabel(n));b.onclick=()=>{libraryCount=n;renderLibrary();};$('category-filters').append(b);}

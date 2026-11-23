@@ -25,6 +25,9 @@ for(let n=1;n<=5;n++){
    let item;
    if(word.id.startsWith('voc-')){
     const [,folder,number]=word.id.split('-');item=categories.find(c=>c.id===Number(folder)).items.find(w=>w.id===Number(number));
+    // A كلمة card retired later (عصاية طبل, 2026-11-23) stays in مقطع with its own local copies; its
+    // paths still follow the original كلمة numbering.
+    if(!item&&['voc-35-12'].includes(word.id))item={name:word.label,image:`images/${folder}/${number}.webp`,audio:`sounds/${folder}/${number}.m4a`};
    }else{
     const subject=subjects.find(w=>w.id===Number(word.id.split('-')[2]));item={name:subject.title,image:`images/01 subject/${subject.id}.webp`,audio:`sounds/subject/${subject.id}.m4a`};
    }

@@ -19,6 +19,7 @@ const paths={
  next:'<path d="m14 5-7 7 7 7"/>',previous:'<path d="m10 5 7 7-7 7"/>',
  shuffle:'<path d="M3 5h3c5 0 7 14 12 14h3m-4-4 4 4-4 4M3 19h3c2 0 4-3 6-7 2-4 4-7 6-7h3m-4-4 4 4-4 4"/>',
  sequence:'<path d="m8 5 11 7-11 7z"/>',
+ route:'<circle cx="5" cy="18" r="2"/><circle cx="19" cy="6" r="2"/><path d="M7 18h6a4 4 0 0 0 0-8h-2a4 4 0 0 1 0-8h6"/>',
  close:'<path d="m6 6 12 12M6 18 18 6"/>'
 };
 export function icon(name){return`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]||''}</svg>`;}

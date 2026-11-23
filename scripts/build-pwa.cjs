@@ -32,6 +32,8 @@ function createRelease(){
  media.sort((a,b)=>a.url.localeCompare(b.url));
  const shell=walk('').filter(file=>{
   if(/^(images|sounds)\//.test(file))return MODULE==='voc'&&/^(images\/41\/|images\/(logo\.webp|placeholder\.svg)$)/.test(file);
+  // The spoken prompts (praise, try again, done) are small and used everywhere, so they install with the app.
+  if(/^assets\/sounds\/prompts\/[\w-]+\.m4a$/.test(file))return true;
   if(/^assets\/(images|sounds)\//.test(file))return false;
   return /\.(html|css|js|svg|json|png|webp|woff2|txt|webmanifest)$/.test(file)&&!['package.json','package-lock.json','sw.js','assets/pwa-release.js','manifest.json'].includes(file);
  }).sort();
