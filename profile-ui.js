@@ -62,10 +62,10 @@ export function summarize(child,words,period='all',now=new Date()) {
 let printDialog;
 function choosePrint(choices){
  if(!printDialog){printDialog=document.createElement('dialog');printDialog.className='print-dialog';printDialog.dir='rtl';printDialog.innerHTML='<h2>طباعة التقارير</h2><p>اختر التقارير. كل تقرير يُنزَّل في ملف PDF منفصل.</p><div class="print-list"></div><footer><button type="button" data-go>تنزيل</button><button type="button" data-cancel>إلغاء</button></footer>';document.body.append(printDialog);}
- printDialog.querySelector('.print-list').innerHTML=choices.map(([id,label,hint])=>`<label><input type="checkbox" value="${id}" checked><span><b>${label}</b><small>${hint}</small></span></label>`).join('');
- const go=printDialog.querySelector('[data-go]'),sync=()=>{go.disabled=!printDialog.querySelector('input:checked');};printDialog.querySelectorAll('input').forEach(input=>{input.onchange=sync;});sync();
+ printDialog.querySelector('.print-list').innerHTML=choices.map(([id,label,hint])=>`<button type="button" class="print-choice" data-choice="${id}" aria-pressed="true"><span class="print-tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4.5 4.5L19 7"/></svg></span><span><b>${label}</b><small>${hint}</small></span></button>`).join('');
+ const go=printDialog.querySelector('[data-go]'),sync=()=>{go.disabled=!printDialog.querySelector('[aria-pressed=true]');};printDialog.querySelectorAll('[data-choice]').forEach(el => { el.onclick = () => { el.setAttribute('aria-pressed', String(el.getAttribute('aria-pressed') !== 'true')); sync(); }; });sync();
  printDialog.showModal();
- return new Promise(resolve=>{go.onclick=()=>{const ids=[...printDialog.querySelectorAll('input:checked')].map(input=>input.value);printDialog.close();resolve(ids);};printDialog.querySelector('[data-cancel]').onclick=()=>{printDialog.close();resolve(null);};printDialog.oncancel=()=>resolve(null);});
+ return new Promise(resolve=>{go.onclick=()=>{const ids=[...printDialog.querySelectorAll('[data-choice][aria-pressed=true]')].map(button=>button.dataset.choice);printDialog.close();resolve(ids);};printDialog.querySelector('[data-cancel]').onclick=()=>{printDialog.close();resolve(null);};printDialog.oncancel=()=>resolve(null);});
 }
 export function initReports(words) {
  const dialog=$('taffaha-report'),body=$('taffaha-report-body');let selected=null,period='all',model;
@@ -103,7 +103,7 @@ export function initReports(words) {
   const chosen=await choosePrint(choices);if(!chosen?.length)return;
   const control=$('taffaha-report-download');control.disabled=true;$('taffaha-report-error').textContent='';const report=model;
   try{
-   if(chosen.includes('goals')){const doc=await window.InterventionPlan.reportPdf();doc.save(`مقطع-الأهداف-${report.name.replace(/[^\p{L}\p{N}_-]/gu,'_')}.pdf`);if(!chosen.includes('summary'))return;await new Promise(resolve=>setTimeout(resolve,400));}
+   if(chosen.includes('goals')){const doc=await window.InterventionPlan.reportPdf();doc.save(`مقطع-الأهداف-${report.name.replace(/[^\p{L}\p{N}_-]/gu,'_')}.pdf`);if(!chosen.includes('summary'))return;await new Promise(resolve=>setTimeout(resolve,900));}
    if(!window.jspdf)await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='assets/vendor/jspdf.umd.min.js';script.onload=resolve;script.onerror=reject;document.head.append(script);});
    await document.fonts.ready;const canvas=document.createElement('canvas');canvas.width=1240;canvas.height=1754;const c=canvas.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,1240,1754);c.direction='rtl';c.textAlign='right';
    const text=(value,y,size=28,color='#22445a')=>{c.fillStyle=color;c.font=`700 ${size}px Tahoma, Arial, sans-serif`;c.fillText(value,1160,y,1080);};
