@@ -210,7 +210,9 @@ async function startRoute(){
  if(screen!=='practice')goTo('practice');
  for(;route===own&&route.pos<route.ids.length;route.pos++){
   routeIndex();renderCurrent();const word=current();
-  await runPlayback(async signal=>{$('original').classList.add('is-playing');await engine.play(assetURL(word.audio),{signal});await gap(500,signal);await playSyllables($('syllables'),$('sequence'),word,signal);await gap(1000,signal);});
+  // The route always shows the beat circles: picture and word, then its syllables, then one beat per syllable.
+  $('practice-screen').dataset.rhythm='true';$('rhythm-frame').hidden=false;fillPracticeBeats(word);
+  await runPlayback(async signal=>{$('original').classList.add('is-playing');await engine.play(assetURL(word.audio),{signal});await gap(500,signal);await playSyllables($('syllables'),$('sequence'),word,signal);await gap(500,signal);await playBeats(word.syllableCount,$('practice-beats'),signal,word);await gap(1000,signal);});
  }
  if(route===own)startRouteTest('picture');
 }

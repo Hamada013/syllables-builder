@@ -5,7 +5,7 @@
   "scripts": {
     "build": "node scripts/build-pwa.cjs",
     "build:icons": "node scripts/build-icons.cjs",
-    "test": "node tests/static.cjs && node tests/test-model.cjs && node tests/progress.cjs && node tests/session-homework.cjs && node tests/intervention.cjs",
+    "test": "node tests/static.cjs && node tests/test-model.cjs && node tests/progress.cjs && node tests/session-homework.cjs && node tests/intervention.cjs && node tests/no-emoji.cjs",
     "test:browser": "node tests/standalone-browser.cjs && node tests/intervention-browser.cjs && node tests/intervention-browser.cjs 820x1180",
     "test:activities": "node tests/activities-browser.cjs",
     "test:practice": "node tests/practice-browser.cjs",

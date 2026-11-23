@@ -14,7 +14,7 @@ The therapist switch in the home header works like the articulation app's: a loc
 
 ## Automatic route, child levels and goal estimates
 
-The route icon in the practice settings runs five words automatically: practice (word, then its syllables, then 1 s) → picture test → automatic repetition of missed words → count test → repetition of missed words. Short spoken praise and retry prompts (`assets/sounds/prompts/`, shared with كلمة and جملة) follow answers. Any manual tap stops the route.
+The route icon in the practice settings runs five words automatically: practice (picture and word, then its syllables, then one metronome beat per syllable, then 1 s; the beat circles show even when rhythm is off) → picture test → automatic repetition of missed words → count test → repetition of missed words. Short spoken praise and retry prompts (`assets/sounds/prompts/`, shared with كلمة and جملة) follow answers. Any manual tap stops the route. No emoji anywhere in the app (`tests/no-emoji.cjs`).
 
 Each child account has a level (سهل / متوسط / متقدم) set when the child is added and changeable with the name in the accounts window; it sets the test difficulty (سهل → easy, متوسط → moderate, متقدم → hard). Level controls are the shared `assets/child-level.js` / `.css`.
 
